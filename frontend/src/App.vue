@@ -10,7 +10,14 @@
 
       <section class="task-list-section">
         <h2>Tasks</h2>
-        <TaskList :tasks="tasks" @task-updated="handleTaskUpdate" />
+        <div v-if="loading" class="loading-state">
+          <p>Loading tasks...</p>
+        </div>
+        <div v-else-if="error" class="error-state">
+          <p>Error loading tasks: {{ error }}</p>
+          <button @click="loadTasks" class="retry-btn">Retry</button>
+        </div>
+        <TaskList v-else :tasks="tasks" @task-updated="handleTaskUpdate" />
       </section>
     </div>
   </div>
@@ -20,13 +27,16 @@
 import { ref, onMounted } from "vue";
 import TaskForm from "./components/tasks/TaskForm.vue";
 import TaskList from "./components/tasks/TaskList.vue";
+import { taskService } from "./services/taskService";
 import type { Task } from "./types";
 
 const tasks = ref<Task[]>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
 
 function addTask(taskData: Partial<Task>) {
   const newTask: Task = {
-    id: Date.now(), // Simple ID generation for now
+    id: Date.now().toString(), // Convert to string to match taskService expectation
     title: taskData.title || "",
     description: taskData.description,
     assigneeId: taskData.assigneeId || "",
@@ -47,8 +57,20 @@ function handleTaskUpdate(updatedTask: Task) {
 }
 
 async function loadTasks() {
-  // Mock data loading - we'll improve this later
-  console.log("Loading tasks...");
+  loading.value = true;
+  error.value = null;
+
+  try {
+    console.log("Loading tasks...");
+    const fetchedTasks = await taskService.getAllTasks();
+    tasks.value = fetchedTasks;
+    console.log(`Successfully loaded ${fetchedTasks.length} tasks`);
+  } catch (err) {
+    console.error("Failed to load tasks:", err);
+    error.value = err instanceof Error ? err.message : "Unknown error occurred";
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(() => {
@@ -90,6 +112,39 @@ onMounted(() => {
 
 .task-list-section {
   min-height: 400px;
+}
+
+.loading-state,
+.error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.loading-state p {
+  font-size: 1.125rem;
+  font-style: italic;
+}
+
+.error-state p {
+  color: #dc2626;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.retry-btn {
+  padding: 0.5rem 1rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+  background-color: #2563eb;
 }
 
 h1 {
@@ -197,6 +252,15 @@ h2 {
 
   h2 {
     border-bottom-color: #475569;
+  }
+
+  .loading-state,
+  .error-state {
+    color: #94a3b8;
+  }
+
+  .error-state p {
+    color: #f87171;
   }
 }
 </style>
