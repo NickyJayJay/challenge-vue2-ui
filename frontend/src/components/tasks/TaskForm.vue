@@ -2,64 +2,142 @@
   <form @submit.prevent="submitTask" class="task-form">
     <div class="form-group">
       <label for="title">Task Title *</label>
-      <input id="title" v-model="title" placeholder="Enter task title" required />
+      <input
+        id="title"
+        v-model="form.title"
+        placeholder="Enter task title"
+        :class="{ error: getFieldError('title') }"
+        @blur="validateField('title')"
+      />
+      <span v-if="getFieldError('title')" class="error-message">
+        {{ getFieldError("title") }}
+      </span>
     </div>
 
     <div class="form-group">
       <label for="description">Description</label>
       <textarea
         id="description"
-        v-model="description"
+        v-model="form.description"
         placeholder="Enter task description (optional)"
         rows="3"
+        :class="{ error: getFieldError('description') }"
+        @blur="validateField('description')"
       ></textarea>
+      <span v-if="getFieldError('description')" class="error-message">
+        {{ getFieldError("description") }}
+      </span>
     </div>
 
     <div class="form-group">
       <label for="assigneeId">Assignee ID</label>
-      <input id="assigneeId" v-model="assigneeId" placeholder="Enter assignee ID" />
+      <input
+        id="assigneeId"
+        v-model="form.assigneeId"
+        placeholder="e.g., user123"
+        :class="{ error: getFieldError('assigneeId') }"
+        @blur="validateField('assigneeId')"
+      />
+      <span v-if="getFieldError('assigneeId')" class="error-message">
+        {{ getFieldError("assigneeId") }}
+      </span>
     </div>
 
     <div class="form-group">
       <label for="dueDate">Due Date</label>
-      <input id="dueDate" v-model="dueDate" placeholder="YYYY-MM-DD" type="date" />
+      <input
+        id="dueDate"
+        v-model="form.dueDate"
+        type="date"
+        :min="minDate"
+        :class="{ error: getFieldError('dueDate') }"
+        @blur="validateField('dueDate')"
+      />
+      <span v-if="getFieldError('dueDate')" class="error-message">
+        {{ getFieldError("dueDate") }}
+      </span>
     </div>
 
-    <button type="submit" :disabled="!title.trim()">Create Task</button>
+    <button type="submit" :disabled="!isFormValid || submitting" class="submit-btn">
+      <span v-if="submitting">Creating...</span>
+      <span v-else>Create Task</span>
+    </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import type { Task } from "@/types/";
+import { ref, computed, reactive } from "vue";
+import type { TaskFormData } from "@/types/";
+import { validateTask, sanitizeTaskData, type ValidationError } from "@/utils/validation";
 
-const title = ref("");
-const description = ref("");
-const assigneeId = ref("");
-const dueDate = ref("");
+const form = reactive<TaskFormData>({
+  title: "",
+  description: "",
+  assigneeId: "",
+  dueDate: "",
+});
+
+const errors = ref<ValidationError[]>([]);
+const submitting = ref(false);
+
+const minDate = computed(() => {
+  const today = new Date();
+  return today.toISOString().split("T")[0];
+});
+
+const isFormValid = computed(() => {
+  const validation = validateTask(form);
+  return validation.isValid && form.title.trim().length >= 3;
+});
 
 const emit = defineEmits<{
-  submit: [task: Partial<Task>];
+  submit: [task: TaskFormData];
+  error: [message: string];
 }>();
 
-function submitTask() {
-  if (!title.value.trim()) return;
+function getFieldError(fieldName: string): string | undefined {
+  const error = errors.value.find((e) => e.field === fieldName);
+  return error?.message;
+}
 
-  emit("submit", {
-    title: title.value.trim(),
-    description: description.value.trim() || undefined,
-    assigneeId: assigneeId.value.trim() || "",
-    dueDate: dueDate.value || "",
-  });
+function validateField(fieldName: string) {
+  const validation = validateTask(form);
+  errors.value = errors.value.filter((e) => e.field !== fieldName);
+  const fieldErrors = validation.errors.filter((e) => e.field === fieldName);
+  errors.value.push(...fieldErrors);
+}
 
-  clearForm();
+function validateForm(): boolean {
+  const validation = validateTask(form);
+  errors.value = validation.errors;
+  return validation.isValid;
+}
+
+async function submitTask() {
+  if (!validateForm()) {
+    return;
+  }
+
+  submitting.value = true;
+
+  try {
+    const sanitizedData = sanitizeTaskData(form);
+    emit("submit", sanitizedData);
+    clearForm();
+    errors.value = [];
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to create task";
+    emit("error", message);
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function clearForm() {
-  title.value = "";
-  description.value = "";
-  assigneeId.value = "";
-  dueDate.value = "";
+  form.title = "";
+  form.description = "";
+  form.assigneeId = "";
+  form.dueDate = "";
 }
 </script>
 
@@ -78,7 +156,6 @@ function clearForm() {
 
 label {
   font-weight: 600;
-  color: #fff;
   font-size: 0.875rem;
 }
 
@@ -100,7 +177,25 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-button {
+input.error,
+textarea.error {
+  border-color: #ef4444;
+}
+
+input.error:focus,
+textarea.error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.submit-btn {
   padding: 0.75rem 1.5rem;
   background-color: #3b82f6;
   color: white;
@@ -108,18 +203,26 @@ button {
   border-radius: 0.375rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
   width: 100%;
   font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-button:hover:not(:disabled) {
+.submit-btn:hover:not(:disabled) {
   background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
-button:disabled {
+.submit-btn:disabled {
   background-color: #9ca3af;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 textarea {
@@ -128,14 +231,15 @@ textarea {
   font-family: inherit;
 }
 
+/* Mobile improvements */
 @media (max-width: 640px) {
   input,
   textarea {
-    font-size: 16px;
+    font-size: 16px; /* Prevents zoom on iOS */
     padding: 0.875rem;
   }
 
-  button {
+  .submit-btn {
     padding: 1rem;
     font-size: 1rem;
   }

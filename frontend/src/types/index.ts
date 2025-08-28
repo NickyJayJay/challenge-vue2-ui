@@ -15,3 +15,10 @@ export interface Comment {
   author?: string;
   createdAt?: string;
 }
+
+export interface TaskFormData {
+  title: string;
+  description?: string;
+  assigneeId?: string;
+  dueDate?: string;
+}
