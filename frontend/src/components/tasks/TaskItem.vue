@@ -30,11 +30,11 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { Task } from "@/types";
+import type { Task } from "@/types/Task";
 
-interface Props {
+type Props = {
   task: Task;
-}
+};
 
 const props = defineProps<Props>();
 const emit = defineEmits<{

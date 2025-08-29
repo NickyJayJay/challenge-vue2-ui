@@ -1,12 +1,12 @@
-export interface ValidationError {
+export type ValidationError = {
     field: string;
     message: string;
-}
+};
 
-export interface ValidationResult {
+export type ValidationResult = {
     isValid: boolean;
     errors: ValidationError[];
-}
+};
 
 export const validateTask = (taskData: {
     title?: string;

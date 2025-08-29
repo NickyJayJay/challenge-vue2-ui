@@ -58,8 +58,8 @@
       </span>
     </div>
 
-    <button type="submit" :disabled="!isFormValid || submitting" class="submit-btn">
-      <span v-if="submitting">Creating...</span>
+    <button type="submit" :disabled="!isFormValid || loading" class="submit-btn">
+      <span v-if="loading">Creating...</span>
       <span v-else>Create Task</span>
     </button>
   </form>
@@ -67,18 +67,23 @@
 
 <script setup lang="ts">
 import { ref, computed, reactive } from "vue";
-import type { TaskFormData } from "@/types/";
+import { storeToRefs } from "pinia";
+import type { TaskFormData } from "@/types/Task";
 import { validateTask, sanitizeTaskData, type ValidationError } from "@/utils/validation";
+import { useTaskStore } from "@/stores/taskStore";
 
+const taskStore = useTaskStore();
+
+const { loading } = storeToRefs(taskStore);
 const form = reactive<TaskFormData>({
   title: "",
   description: "",
   assigneeId: "",
   dueDate: "",
+  status: "todo",
 });
 
 const errors = ref<ValidationError[]>([]);
-const submitting = ref(false);
 
 const minDate = computed(() => {
   const today = new Date();
@@ -118,8 +123,6 @@ async function submitTask() {
     return;
   }
 
-  submitting.value = true;
-
   try {
     const sanitizedData = sanitizeTaskData(form);
     emit("submit", sanitizedData);
@@ -128,8 +131,6 @@ async function submitTask() {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to create task";
     emit("error", message);
-  } finally {
-    submitting.value = false;
   }
 }
 
@@ -231,11 +232,10 @@ textarea {
   font-family: inherit;
 }
 
-/* Mobile improvements */
 @media (max-width: 640px) {
   input,
   textarea {
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
     padding: 0.875rem;
   }
 

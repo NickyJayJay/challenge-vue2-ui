@@ -17,11 +17,11 @@
 
 <script setup lang="ts">
 import TaskItem from "./TaskItem.vue";
-import type { Task } from "@/types/";
+import type { Task } from "@/types/Task";
 
-interface Props {
+type Props = {
   tasks: Task[];
-}
+};
 
 defineProps<Props>();
 

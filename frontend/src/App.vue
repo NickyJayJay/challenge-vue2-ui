@@ -24,57 +24,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
 import TaskForm from "./components/tasks/TaskForm.vue";
 import TaskList from "./components/tasks/TaskList.vue";
-import { taskService } from "./services/taskService";
-import type { Task } from "./types";
+import { useTaskStore } from "./stores/taskStore";
+import type { Task, TaskFormData } from "./types/Task";
 
-const tasks = ref<Task[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
+const taskStore = useTaskStore();
 
-function addTask(taskData: Partial<Task>) {
-  const newTask: Task = {
-    id: Date.now().toString(), // Convert to string to match taskService expectation
-    title: taskData.title || "",
-    description: taskData.description,
-    assigneeId: taskData.assigneeId || "",
-    dueDate: taskData.dueDate || "",
-    status: "todo",
-    comments: [],
-    metadata: {},
-  };
+const { tasks, loading, error } = storeToRefs(taskStore);
 
-  tasks.value.push(newTask);
+async function addTask(taskData: TaskFormData) {
+  try {
+    await taskStore.createTask({
+      title: taskData.title,
+      description: taskData.description || "",
+      assigneeId: taskData.assigneeId || "",
+      dueDate: taskData.dueDate || "",
+      status: "todo",
+    });
+  } catch (err) {
+    console.error("Failed to create task:", err);
+  }
 }
 
-function handleTaskUpdate(updatedTask: Task) {
-  const index = tasks.value.findIndex((task) => task.id === updatedTask.id);
-  if (index !== -1) {
-    tasks.value[index] = updatedTask;
+async function handleTaskUpdate(updatedTask: Task) {
+  try {
+    await taskStore.updateTask(updatedTask.id, updatedTask);
+  } catch (err) {
+    console.error("Failed to update task:", err);
   }
 }
 
 async function loadTasks() {
-  loading.value = true;
-  error.value = null;
-
-  try {
-    console.log("Loading tasks...");
-    const fetchedTasks = await taskService.getAllTasks();
-    tasks.value = fetchedTasks;
-    console.log(`Successfully loaded ${fetchedTasks.length} tasks`);
-  } catch (err) {
-    console.error("Failed to load tasks:", err);
-    error.value = err instanceof Error ? err.message : "Unknown error occurred";
-  } finally {
-    loading.value = false;
-  }
+  await taskStore.loadTasks();
 }
 
 onMounted(() => {
-  loadTasks();
+  taskStore.loadTasks();
 });
 </script>
 

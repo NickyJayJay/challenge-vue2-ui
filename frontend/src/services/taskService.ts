@@ -1,4 +1,4 @@
-import type { Task } from '@/types/';
+import type { Task } from '@/types/Task';
 
 // Mock data based on the provided CSV
 const mockTasks: Task[] = [

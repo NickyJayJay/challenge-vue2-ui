@@ -9,16 +9,17 @@ export type Task = {
   metadata?: any;
 };
 
-export interface Comment {
+export type Comment = {
   id?: string | number;
   text: string;
   author?: string;
   createdAt?: string;
-}
+};
 
-export interface TaskFormData {
+export type TaskFormData = {
   title: string;
   description?: string;
   assigneeId?: string;
   dueDate?: string;
-}
+  status?: string;
+};
