@@ -2,11 +2,14 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { Task } from '@/types/Task';
 import { taskService } from '@/services/taskService';
+import { useToast } from '@/composables/useToast';
 
 export const useTaskStore = defineStore('tasks', () => {
     const tasks = ref<Task[]>([]);
     const loading = ref(false);
     const error = ref<string | null>(null);
+
+    const { showSuccess, showNetworkError } = useToast();
 
     const todoTasks = computed(() =>
         tasks.value.filter(task => task.status === 'todo')
@@ -35,7 +38,12 @@ export const useTaskStore = defineStore('tasks', () => {
             const data = await taskService.getAllTasks();
             tasks.value = data;
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to load tasks';
+            const errorMessage = err instanceof Error ? err.message : 'Failed to load tasks';
+            error.value = errorMessage;
+
+            showNetworkError(errorMessage, () => {
+                loadTasks();
+            });
         } finally {
             loading.value = false;
         }
@@ -47,9 +55,13 @@ export const useTaskStore = defineStore('tasks', () => {
         try {
             const newTask = await taskService.createTask(taskData);
             tasks.value.push(newTask);
+            showSuccess('Task created successfully!');
             return newTask;
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to create task';
+            const errorMessage = err instanceof Error ? err.message : 'Failed to create task';
+            error.value = errorMessage;
+
+            showNetworkError(errorMessage);
             throw err;
         }
     }
@@ -65,9 +77,21 @@ export const useTaskStore = defineStore('tasks', () => {
                 tasks.value[index] = updatedTask;
             }
 
+            if (updates.status) {
+                const statusMessages: Record<string, string> = {
+                    'in-progress': 'Task started!',
+                    'done': 'Task completed!',
+                    'todo': 'Task moved to todo'
+                };
+                showSuccess(statusMessages[updates.status] || 'Task updated successfully!');
+            }
+
             return updatedTask;
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to update task';
+            const errorMessage = err instanceof Error ? err.message : 'Failed to update task';
+            error.value = errorMessage;
+
+            showNetworkError(errorMessage);
             throw err;
         }
     }
@@ -82,8 +106,13 @@ export const useTaskStore = defineStore('tasks', () => {
             if (index !== -1) {
                 tasks.value.splice(index, 1);
             }
+
+            showSuccess('Task deleted successfully!');
         } catch (err) {
-            error.value = err instanceof Error ? err.message : 'Failed to delete task';
+            const errorMessage = err instanceof Error ? err.message : 'Failed to delete task';
+            error.value = errorMessage;
+
+            showNetworkError(errorMessage);
             throw err;
         }
     }

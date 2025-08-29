@@ -19,15 +19,6 @@
         <div v-if="loading" class="text-center py-12 px-4 text-slate-400">
           <p class="text-lg italic">Loading tasks...</p>
         </div>
-        <div v-else-if="error" class="text-center py-12 px-4 text-slate-400">
-          <p class="text-red-400 text-base mb-4">{{ error }}</p>
-          <button
-            @click="loadTasks"
-            class="px-4 py-2 bg-blue-600 text-white border-0 rounded cursor-pointer text-sm transition-colors hover:bg-blue-700"
-          >
-            Retry
-          </button>
-        </div>
         <TaskList v-else :tasks="tasks" @task-updated="handleTaskUpdate" />
       </section>
     </div>
@@ -44,7 +35,7 @@ import type { Task, TaskFormData } from "./types/Task";
 
 const taskStore = useTaskStore();
 
-const { tasks, loading, error } = storeToRefs(taskStore);
+const { tasks, loading } = storeToRefs(taskStore);
 
 async function addTask(taskData: TaskFormData) {
   try {
@@ -66,10 +57,6 @@ async function handleTaskUpdate(updatedTask: Task) {
   } catch (err) {
     console.error("Failed to update task:", err);
   }
-}
-
-async function loadTasks() {
-  await taskStore.loadTasks();
 }
 
 onMounted(() => {

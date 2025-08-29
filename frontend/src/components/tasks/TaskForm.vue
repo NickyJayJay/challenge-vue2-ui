@@ -131,7 +131,6 @@ const isFormValid = computed(() => {
 
 const emit = defineEmits<{
   submit: [task: TaskFormData];
-  error: [message: string];
 }>();
 
 function getFieldError(fieldName: string): string | undefined {
@@ -163,8 +162,8 @@ async function submitTask() {
     clearForm();
     errors.value = [];
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create task";
-    emit("error", message);
+    // Error handling is now done in the store via toast notifications
+    console.error("Failed to create task:", error);
   }
 }
 
