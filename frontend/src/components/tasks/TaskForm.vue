@@ -1,66 +1,100 @@
 <template>
-  <form @submit.prevent="submitTask" class="task-form">
-    <div class="form-group">
-      <label for="title">Task Title *</label>
+  <form @submit.prevent="submitTask" class="flex flex-col gap-4">
+    <div class="flex flex-col gap-1">
+      <label for="title" class="font-semibold text-sm text-white">Task Title *</label>
       <input
         id="title"
         v-model="form.title"
         placeholder="Enter task title"
-        :class="{ error: getFieldError('title') }"
+        :class="[
+          'px-3 py-3 border rounded-md text-base transition-colors w-full box-border focus:outline-none bg-white text-gray-900 placeholder-gray-500',
+          getFieldError('title')
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-gray-300 focus:border-blue-500',
+        ]"
         @blur="validateField('title')"
       />
-      <span v-if="getFieldError('title')" class="error-message">
+      <span v-if="getFieldError('title')" class="text-red-400 text-xs mt-1 block">
         {{ getFieldError("title") }}
       </span>
     </div>
 
-    <div class="form-group">
-      <label for="description">Description</label>
+    <div class="flex flex-col gap-1">
+      <label for="description" class="font-semibold text-sm text-white">Description</label>
       <textarea
         id="description"
         v-model="form.description"
         placeholder="Enter task description (optional)"
         rows="3"
-        :class="{ error: getFieldError('description') }"
+        :class="[
+          'px-3 py-3 border rounded-md text-base transition-colors w-full box-border resize-y min-h-[80px] font-inherit focus:outline-none bg-white text-gray-900 placeholder-gray-500',
+          getFieldError('description')
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-gray-300 focus:border-blue-500',
+        ]"
         @blur="validateField('description')"
+        @keyup="validateField('description')"
+        @keydown="validateField('description')"
       ></textarea>
-      <span v-if="getFieldError('description')" class="error-message">
+      <span v-if="getFieldError('description')" class="text-red-400 text-xs mt-1 block">
         {{ getFieldError("description") }}
       </span>
     </div>
 
-    <div class="form-group">
-      <label for="assigneeId">Assignee ID</label>
+    <div class="flex flex-col gap-1">
+      <label for="assigneeId" class="font-semibold text-sm text-white">Assignee ID</label>
       <input
         id="assigneeId"
         v-model="form.assigneeId"
         placeholder="e.g., user123"
-        :class="{ error: getFieldError('assigneeId') }"
+        :class="[
+          'px-3 py-3 border rounded-md text-base transition-colors w-full box-border focus:outline-none bg-white text-gray-900 placeholder-gray-500',
+          getFieldError('assigneeId')
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-gray-300 focus:border-blue-500',
+        ]"
         @blur="validateField('assigneeId')"
+        @keyup="validateField('assigneeId')"
+        @keydown="validateField('assigneeId')"
       />
-      <span v-if="getFieldError('assigneeId')" class="error-message">
+      <span v-if="getFieldError('assigneeId')" class="text-red-400 text-xs mt-1 block">
         {{ getFieldError("assigneeId") }}
       </span>
     </div>
 
-    <div class="form-group">
-      <label for="dueDate">Due Date</label>
+    <div class="flex flex-col gap-1">
+      <label for="dueDate" class="font-semibold text-sm text-white">Due Date</label>
       <input
         id="dueDate"
         v-model="form.dueDate"
         type="date"
         :min="minDate"
-        :class="{ error: getFieldError('dueDate') }"
+        :class="[
+          'px-3 py-3 border rounded-md text-base transition-colors w-full box-border focus:outline-none bg-white text-gray-900',
+          getFieldError('dueDate')
+            ? 'border-red-500 focus:border-red-500'
+            : 'border-gray-300 focus:border-blue-500',
+        ]"
         @blur="validateField('dueDate')"
+        @keyup="validateField('dueDate')"
+        @keydown="validateField('dueDate')"
       />
-      <span v-if="getFieldError('dueDate')" class="error-message">
+      <span v-if="getFieldError('dueDate')" class="text-red-400 text-xs mt-1 block">
         {{ getFieldError("dueDate") }}
       </span>
     </div>
 
-    <button type="submit" :disabled="!isFormValid || loading" class="submit-btn">
-      <span v-if="loading">Creating...</span>
-      <span v-else>Create Task</span>
+    <button
+      type="submit"
+      :disabled="!isFormValid || loading"
+      :class="[
+        'px-6 py-3 border-0 rounded-md font-semibold cursor-pointer transition-all w-full text-base flex items-center justify-center gap-2',
+        !isFormValid || loading
+          ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+          : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg',
+      ]"
+    >
+      <span>Create Task</span>
     </button>
   </form>
 </template>
@@ -143,93 +177,14 @@ function clearForm() {
 </script>
 
 <style scoped>
-.task-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-label {
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-input,
-textarea {
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-  width: 100%;
-  box-sizing: border-box;
-}
-
 input:focus,
 textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-input.error,
-textarea.error {
-  border-color: #ef4444;
 }
 
 input.error:focus,
 textarea.error:focus {
-  border-color: #ef4444;
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.error-message {
-  color: #ef4444;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
-  display: block;
-}
-
-.submit-btn {
-  padding: 0.75rem 1.5rem;
-  background-color: #3b82f6;
-  color: white;
-  border: none;
-  border-radius: 0.375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  width: 100%;
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
-.submit-btn:disabled {
-  background-color: #9ca3af;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-textarea {
-  resize: vertical;
-  min-height: 80px;
-  font-family: inherit;
 }
 
 @media (max-width: 640px) {
@@ -239,7 +194,7 @@ textarea {
     padding: 0.875rem;
   }
 
-  .submit-btn {
+  button {
     padding: 1rem;
     font-size: 1rem;
   }

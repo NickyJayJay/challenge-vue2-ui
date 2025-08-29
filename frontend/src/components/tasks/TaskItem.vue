@@ -1,29 +1,53 @@
 <template>
-  <li class="task-item" :class="{ completed: isCompleted }">
-    <div class="task-content">
-      <h3>{{ task.title }}</h3>
-      <p class="description">
+  <li
+    :class="[
+      'flex justify-between items-start p-6 border border-gray-300 rounded-lg bg-white mb-4 transition-all hover:border-gray-400 hover:shadow-md',
+      { 'opacity-70 bg-gray-100': isCompleted },
+    ]"
+  >
+    <div class="flex-1">
+      <h3 class="m-0 mb-2 text-gray-900 text-lg font-semibold">{{ task.title }}</h3>
+      <p class="m-0 mb-4 text-gray-600 text-sm leading-6">
         {{ task.description || "No Description" }}
       </p>
-      <div class="task-meta">
-        <span class="assignee" v-if="task.assigneeId"> Assignee: {{ task.assigneeId }} </span>
-        <span class="due-date" v-if="task.dueDate"> Due: {{ formatDate(task.dueDate) }} </span>
-        <span class="status" :class="`status-${task.status}`">
+      <div class="flex gap-4 flex-wrap text-xs">
+        <span class="text-gray-600" v-if="task.assigneeId"> Assignee: {{ task.assigneeId }} </span>
+        <span class="text-gray-600" v-if="task.dueDate"> Due: {{ formatDate(task.dueDate) }} </span>
+        <span
+          :class="[
+            'px-2 py-1 rounded font-bold uppercase text-xs',
+            {
+              'bg-yellow-200 text-yellow-900': task.status === 'todo',
+              'bg-blue-200 text-blue-900': task.status === 'in-progress',
+              'bg-green-200 text-green-900': task.status === 'done',
+            },
+          ]"
+        >
           {{ formatStatus(task.status) }}
         </span>
       </div>
     </div>
 
-    <div class="task-actions">
-      <button v-if="task.status === 'todo'" @click="markInProgress" class="in-progress-btn">
+    <div class="ml-4 flex flex-col gap-2 items-end min-w-[100px]">
+      <button
+        v-if="task.status === 'todo'"
+        @click="markInProgress"
+        class="px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded cursor-pointer transition-all text-sm min-w-[80px] font-medium hover:bg-blue-700 hover:border-blue-700"
+      >
         Start
       </button>
 
-      <button v-if="task.status === 'in-progress'" @click="markDone" class="complete-btn">
+      <button
+        v-if="task.status === 'in-progress'"
+        @click="markDone"
+        class="px-4 py-2 border border-gray-400 rounded bg-white cursor-pointer transition-all text-sm min-w-[80px] font-medium text-gray-700 hover:bg-green-600 hover:text-white hover:border-green-600"
+      >
         Complete
       </button>
 
-      <span v-if="task.status === 'done'" class="completed-label"> ✓ Completed </span>
+      <span v-if="task.status === 'done'" class="text-green-600 font-semibold text-sm text-center">
+        ✓ Completed
+      </span>
     </div>
   </li>
 </template>
@@ -89,132 +113,12 @@ function formatStatus(status: string): string {
 </script>
 
 <style scoped>
-.task-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 1.5rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background-color: white;
-  margin-bottom: 1rem;
-  transition: all 0.2s;
-}
-
-.task-item:hover {
-  border-color: #d1d5db;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.task-item.completed {
-  opacity: 0.7;
-  background-color: #f9fafb;
-}
-
 @media (max-width: 640px) {
-  .task-item {
+  li {
     flex-direction: column;
     padding: 1rem;
   }
-}
 
-.task-content {
-  flex: 1;
-}
-
-.task-content h3 {
-  margin: 0 0 0.5rem 0;
-  color: #111827;
-  font-size: 1.125rem;
-}
-
-.description {
-  margin: 0 0 1rem 0;
-  color: #6b7280;
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-.task-meta {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  font-size: 0.75rem;
-}
-
-.assignee,
-.due-date {
-  color: #6b7280;
-}
-
-.status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.status-todo {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-in-progress {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.status-done {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.task-actions {
-  margin-left: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: flex-end;
-  min-width: 100px;
-}
-
-.complete-btn,
-.in-progress-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  background-color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.875rem;
-  min-width: 80px;
-}
-
-.in-progress-btn {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
-.in-progress-btn:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
-}
-
-.complete-btn:hover {
-  background-color: #16a34a;
-  color: white;
-  border-color: #16a34a;
-}
-
-.completed-label {
-  color: #16a34a;
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-align: center;
-}
-
-@media (max-width: 640px) {
   .task-actions {
     margin-left: 0;
     margin-top: 1rem;
@@ -223,8 +127,7 @@ function formatStatus(status: string): string {
     gap: 0.75rem;
   }
 
-  .complete-btn,
-  .in-progress-btn {
+  button {
     min-width: 70px;
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
