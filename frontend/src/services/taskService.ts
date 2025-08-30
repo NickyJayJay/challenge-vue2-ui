@@ -58,7 +58,7 @@ const mockTasks: Task[] = [
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Simulate occasional failures for testing error handling
-const shouldFail = () => Math.random() < 0.5; // 10% failure rate
+const shouldFail = () => Math.random() < 0.1; // 10% failure rate
 
 export const taskService = {
     async getAllTasks(): Promise<Task[]> {

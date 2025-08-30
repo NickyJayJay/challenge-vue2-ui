@@ -12,5 +12,11 @@ export default defineConfig({
     server: {
         port: 3000,
         open: true
+    },
+    // @ts-ignore
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: ['./src/test/setup.ts']
     }
 });
