@@ -1,110 +1,159 @@
-# TaskM8 Pro — Advanced Coding Challenge
+# TaskM8 Pro — Vue.js Task Management Application
 
- The goal of this exercise is to assess architectural reasoning, code quality, and awareness of scalable application patterns. This open-ended project is intentionally written with architectural, state, type, and validation pitfalls. There are way too many things to fix!
+## Introduction & Architectural Overview
 
-All tools and IDEs are allowed, but be prepared to explain all code written and decisions made in the submitted solution.
+TaskM8 Pro is a modern task management application built with Vue 3, TypeScript, and Tailwind CSS. Since the position I'm under consideration for is **Senior Software Engineer — Front-End**, I chose to focus heavily on frontend architecture, state management, user experience, and modern development practices.
 
-Note that there are more requirements than can be fulfilled in a resonable amount of time. Canditates may choose to mock or stub certain features to focus on other areas that highlight their skills, e.g. API mocks, testing boilerplate, UI skeleton components, etc.
+After years of primarily working with React, I found building this application with Vue 3's Composition API refreshing and intuitive. The declarative nature of Vue's templates combined with the powerful reactivity system made for an excellent developer experience, especially when managing complex component interactions and state updates.
 
----
+This implementation demonstrates production-ready frontend architecture patterns suitable for enterprise applications. The focus on user experience, error handling, and maintainable code structure showcases modern Vue.js development practices.
 
-## Feature Requirements
+The mock service with configurable failure rates allows for comprehensive testing of error scenarios without requiring a backend infrastructure, making it ideal for frontend-focused development and demonstration purposes.
 
-### 1. Real-Time Collaboration
-- **Support for real-time:**  
-  - *Explain recommended frameworks:* Socket.io, Pusher, Ably, etc.  
-  - Candidate may **skip sockets** for initial submission, but discuss integration approach.
+### Core Architectural Decisions
 
-### 2. Flexible Data Models
-- **Entities:**  
-  - Tasks  
-  - Users  
-  - Comments  
-  - Notifications
-- **Design for extensibility:**  
-  - Clearly defined relationships.
+**Frontend-First Approach**: Given the role requirements, I prioritized creating a robust, scalable frontend architecture with clean separation of concerns, comprehensive error handling, and excellent user experience patterns.
 
-### 3. Authentication
-- **Implementation:**  
-  - Basic sign-in (mock logic or real implementation).  
-  - Role or permission field in user model.
+**Vue 3 + Composition API**: Leverages Vue's modern reactive system for clean, reusable component logic and excellent TypeScript integration.
 
-### 4. Decoupled Architecture
-- **Frontend and backend** as distinct projects/modules.
-- **Clear API/service layers.**  
-- **Separation of concerns.**
-- Candidate may **skip API** for initial submission, but discussion intergration approach.
+**Pinia State Management**: Implements a centralized store pattern for predictable state updates, optimistic UI updates, and seamless error recovery.
 
-### 5. Advanced Extension (Choose One or Propose Alternative)
-- **History log:** Full change tracking (task/comment edit history).
-- **Notifications:** Real-time or queued (task assigned, completed, or commented).
-- **Advanced access controls:** Granular permissions (admin, member, guest).
-- **Candidate may propose another meaningful extension.**
+**Component-Driven Development**: Modular, reusable components with clear prop interfaces and event contracts.
 
-### 6. Bonus
-- **Partial tests:** Provide sample/partial tests (unit, integration, or E2E).
-- **Document architecture and trade-offs.**
+**Progressive Enhancement**: Built with accessibility, responsive design, and graceful error handling from the ground up.
 
----
+## Repository & Demo
 
-## Functional Requirements
+- **Repository**: https://github.com/NickyJayJay/challenge-vue2-ui
+- **Live Demo**: https://challenge-vue2-ui.onrender.com/
 
-- **Task CRUD with validation:**  
-  - Schema: title, description, labels, priority, status, multi-user assignment, due date.
-  - All API boundaries validated & sanitized.
+## Installation & Running
 
-- **Comment System:**  
-  - Markdown or rich text support.
-  - Explain chosen implementation (UI/editor, parsing, security).
+```bash
+# Clone the repository
+git clone https://github.com/NickyJayJay/challenge-vue2-ui.git
+cd challenge-vue2-ui/frontend
 
-- **Notifications:**  
-  - Logic (or mock) for assignment, completion, and comment events.
+# Install dependencies
+npm install
 
-- **Frontend:**
-  - Scoped styling (CSS Modules, SASS/SCSS, styled-components, Tailwind, etc.).
-  - Modular components and clear error/empty state handling.
-  - Responsive design.
+# Start development server
+npm run dev
+```
 
-- **Backend:**
-  - RESTful API (mock is also acceptable with provided dataset).
-  - Multi-file structure with clean separation (routing, models, services, utilities).
+The application will be available at `http://localhost:3000` in development mode.
 
----
+## Technology Stack & Rationale
 
-## Cross-Cutting Concerns
+### Vite Build Tool
 
-- **Type-safety awareness:**  
-  - Validate/sanitize API, props, responses.
+**Rationale**: I chose Vite over traditional bundlers like Webpack for several reasons:
 
-- **Architectural documentation:**  
-  - Convention-following folder structure.
-  - README with rationale for decisions
-- **Testing:**  
-  - At least one critical scenario each for backend and frontend (unit/integration).
+- **Fast HMR**: Sub-second hot reloads during development improve developer productivity
+- **ES modules native**: Better tree-shaking and smaller bundle sizes
+- **Zero-config TypeScript**: Built-in TypeScript support without complex configuration
+- **Modern by default**: Optimized for modern development workflows and deployment targets
+- **Excellent Vue integration**: First-class support for Vue SFC (Single File Components)
 
-- **DevOps awareness:**  
-  - Discuss basic CI/CD setup.
-  - Deployment plan (static hosting, containerization, scaling recommendations).
+### Mock Data Service with Error Simulation
 
----
+**Rationale**: The `taskService.ts` implements a realistic API simulation that includes:
 
-## Deliverables
+- **10% failure rate**: By default, the service has a 10% chance of simulating network failures, allowing you to experience the comprehensive error handling system
+- **Realistic delays**: Network latency simulation (200-500ms) for authentic user experience testing
+- **Adjustable failure rate**: You can modify the `shouldFail()` function in `src/services/taskService.ts` to adjust the failure probability:
 
-- **Repository link**
-- **Working demo or local install instructions**
-- **As much documentation as is available (README with architectural overview, decision log, and test instructions)** 
+```typescript
+// Change this line to adjust failure rate:
+const shouldFail = () => Math.random() < 0.1; // 10% failure rate
+const shouldFail = () => Math.random() < 0.0; // No failures
+const shouldFail = () => Math.random() < 0.8; // 80% failure rate
+```
 
-A sample dataset has been provided for use in the application.
+This approach demonstrates production-ready error handling without requiring a backend service.
 
-## Ideas for Investigatation (inclduing, but not limited to...)
-- Build- or run-time errors
-- Version control 
-- Local development tooling
-- Type confusion
-- Data validation and error handling
-- State management
-- Security
-- Accessibility
-- Real-time and notifications
-- API integration
-- Developer documentiation 
+### Form Validation Architecture
+
+**Rationale**: I implemented a comprehensive validation system that includes:
+
+- **Real-time validation**: Field-level validation for immediate feedback
+- **Schema-based validation**: Centralized validation rules in `src/utils/validation.ts`
+- **Input sanitization**: Automatic trimming and cleanup of user input
+- **Accessibility-first**: Proper ARIA labels, error associations, and screen reader support
+- **Progressive disclosure**: Validation errors appear contextually and non-intrusively
+
+The validation system supports complex rules (title length, special characters in assignee IDs, date validation) while maintaining a clean, reusable API.
+
+### Global State Management with Pinia
+
+**Rationale**: I migrated from local component state to Pinia for several architectural benefits:
+
+- **Predictable state updates**: Centralized mutations ensure consistent data flow
+- **Optimistic UI updates**: Tasks update immediately in the UI, with rollback on errors
+- **Global error handling**: Centralized error management with toast notifications
+- **Developer experience**: Excellent TypeScript integration and Vue DevTools support
+- **Composition API integration**: Seamless integration with Vue 3's modern patterns
+
+The store architecture separates concerns clearly:
+
+- **Actions**: Handle async operations and side effects
+- **Getters**: Computed derived state (filtered tasks, statistics)
+- **State**: Single source of truth for application data
+
+### Tailwind CSS Integration
+
+**Rationale**: I moved from scoped component styles to Tailwind CSS for:
+
+- **Utility-first approach**: Rapid development with consistent design tokens
+- **Smaller bundle sizes**: Only used utilities are included in the final CSS
+- **Responsive design**: Built-in responsive utilities for mobile-first development
+- **Maintenance benefits**: No CSS specificity wars or orphaned styles
+- **Team consistency**: Standardized spacing, colors, and component patterns
+
+The implementation includes:
+
+- **Responsive grid**: Mobile-first responsive layout system
+- **Dark mode ready**: CSS custom properties for theme switching
+
+### Toast Notification System
+
+**Rationale**: I implemented a sophisticated notification system using `vue-toastification`:
+
+- **Rich error handling**: Network errors include retry functionality with automatic retry buttons
+- **Success feedback**: Positive reinforcement for completed actions
+- **Smart timeout management**: Different timeout durations based on message importance
+- **Non-blocking UX**: Notifications don't interrupt the user's workflow
+- **Accessibility**: Proper ARIA live regions for screen readers
+
+**Key Features**:
+
+- **Retry mechanism**: Failed network requests can be retried directly from the toast
+- **Contextual messaging**: Different messages for different actions (task created, completed, etc.)
+- **Toast queuing**: Multiple notifications are handled gracefully
+- **Custom components**: Rich content with buttons and interactive elements
+
+## Testing Strategy
+
+**Rationale**: I've implemented partial but targeted testing focusing on the most critical and complex parts of the application:
+
+### Unit Testing
+
+- **Form Validation Logic**: Complete test coverage of the validation.ts utility functions, including edge cases for title length requirements, assignee ID format validation, date validation, and input sanitization
+- **Business Logic**: Tests cover all validation rules, error conditions, and data transformation functions that form the core of the application's reliability
+
+### Integration Testing
+
+- **App Component**: Integration tests that verify the complete user workflow from task creation through status updates, ensuring proper component communication and state management
+- **Component Interactions**: Tests validate that form submission, task updates, and error handling work correctly across component boundaries
+
+### Running Tests
+
+```bash
+# Run all tests
+npm run test
+```
+
+### Testing Tools Used
+
+- **Vitest**: The test runner
+- **Testing Library**: User-centric testing approaches focusing on behavior
