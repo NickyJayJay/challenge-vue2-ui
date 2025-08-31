@@ -4,13 +4,15 @@
       'flex justify-between items-start p-6 border border-gray-300 rounded-lg bg-white mb-4 transition-all hover:border-gray-400 hover:shadow-md',
       { 'opacity-70 bg-gray-100': isCompleted },
     ]"
+    role="listitem"
+    :aria-label="`Task: ${task.title}`"
   >
     <div class="flex-1">
       <h3 class="m-0 mb-2 text-gray-900 text-lg font-semibold">{{ task.title }}</h3>
       <p class="m-0 mb-4 text-gray-600 text-sm leading-6">
         {{ task.description || "No Description" }}
       </p>
-      <div class="flex gap-4 flex-wrap text-xs">
+      <div class="flex gap-4 flex-wrap text-xs" role="group" aria-label="Task details">
         <span class="text-gray-600" v-if="task.assigneeId"> Assignee: {{ task.assigneeId }} </span>
         <span class="text-gray-600" v-if="task.dueDate"> Due: {{ formatDate(task.dueDate) }} </span>
         <span
@@ -22,17 +24,24 @@
               'bg-green-200 text-green-900': task.status === 'done',
             },
           ]"
+          role="status"
+          :aria-label="`Status: ${formatStatus(task.status)}`"
         >
           {{ formatStatus(task.status) }}
         </span>
       </div>
     </div>
 
-    <div class="ml-4 flex flex-col gap-2 items-end min-w-[100px]">
+    <div
+      class="ml-4 flex flex-col gap-2 items-end min-w-[100px]"
+      role="group"
+      aria-label="Task actions"
+    >
       <button
         v-if="task.status === 'todo'"
         @click="markInProgress"
         class="px-4 py-2 bg-blue-600 text-white border border-blue-600 rounded cursor-pointer transition-all text-sm min-w-[80px] font-medium hover:bg-blue-700 hover:border-blue-700"
+        :aria-label="`Start task: ${task.title}`"
       >
         Start
       </button>
@@ -41,11 +50,17 @@
         v-if="task.status === 'in-progress'"
         @click="markDone"
         class="px-4 py-2 border border-gray-400 rounded bg-white cursor-pointer transition-all text-sm min-w-[80px] font-medium text-gray-700 hover:bg-green-600 hover:text-white hover:border-green-600"
+        :aria-label="`Complete task: ${task.title}`"
       >
         Complete
       </button>
 
-      <span v-if="task.status === 'done'" class="text-green-600 font-semibold text-sm text-center">
+      <span
+        v-if="task.status === 'done'"
+        class="text-green-600 font-semibold text-sm text-center"
+        role="status"
+        :aria-label="`Task completed: ${task.title}`"
+      >
         ✓ Completed
       </span>
     </div>

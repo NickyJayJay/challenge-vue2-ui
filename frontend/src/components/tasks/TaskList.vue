@@ -1,10 +1,20 @@
 <template>
   <div class="w-full">
-    <div v-if="tasks.length === 0" class="text-center py-12 px-4 text-slate-500 italic">
+    <div
+      v-if="tasks.length === 0"
+      class="text-center py-12 px-4 text-slate-500 italic"
+      role="status"
+      aria-label="No tasks available"
+    >
       <p class="m-0 text-lg">No tasks yet. Create your first task!</p>
     </div>
 
-    <ul v-else class="list-none p-0 m-0">
+    <ul
+      v-else
+      class="list-none p-0 m-0"
+      role="list"
+      :aria-label="`Task list with ${tasks.length} tasks`"
+    >
       <TaskItem
         v-for="task in tasks"
         :key="task.id"

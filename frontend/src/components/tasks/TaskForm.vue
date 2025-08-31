@@ -1,5 +1,10 @@
 <template>
-  <form @submit.prevent="submitTask" class="flex flex-col gap-4">
+  <form
+    @submit.prevent="submitTask"
+    class="flex flex-col gap-4"
+    role="form"
+    aria-label="Create new task"
+  >
     <div class="flex flex-col gap-1">
       <label for="title" class="font-semibold text-sm text-white">Task Title *</label>
       <input
@@ -12,9 +17,18 @@
             ? 'border-red-500 focus:border-red-500'
             : 'border-gray-300 focus:border-blue-500',
         ]"
+        :aria-invalid="!!getFieldError('title')"
+        :aria-describedby="getFieldError('title') ? 'title-error' : undefined"
         @blur="validateField('title')"
+        required
       />
-      <span v-if="getFieldError('title')" class="text-red-400 text-xs mt-1 block">
+      <span
+        v-if="getFieldError('title')"
+        id="title-error"
+        class="text-red-400 text-xs mt-1 block"
+        role="alert"
+        aria-live="polite"
+      >
         {{ getFieldError("title") }}
       </span>
     </div>
@@ -32,11 +46,19 @@
             ? 'border-red-500 focus:border-red-500'
             : 'border-gray-300 focus:border-blue-500',
         ]"
+        :aria-invalid="!!getFieldError('description')"
+        :aria-describedby="getFieldError('description') ? 'description-error' : undefined"
         @blur="validateField('description')"
         @keyup="validateField('description')"
         @keydown="validateField('description')"
       ></textarea>
-      <span v-if="getFieldError('description')" class="text-red-400 text-xs mt-1 block">
+      <span
+        v-if="getFieldError('description')"
+        id="description-error"
+        class="text-red-400 text-xs mt-1 block"
+        role="alert"
+        aria-live="polite"
+      >
         {{ getFieldError("description") }}
       </span>
     </div>
@@ -53,11 +75,19 @@
             ? 'border-red-500 focus:border-red-500'
             : 'border-gray-300 focus:border-blue-500',
         ]"
+        :aria-invalid="!!getFieldError('assigneeId')"
+        :aria-describedby="getFieldError('assigneeId') ? 'assigneeId-error' : undefined"
         @blur="validateField('assigneeId')"
         @keyup="validateField('assigneeId')"
         @keydown="validateField('assigneeId')"
       />
-      <span v-if="getFieldError('assigneeId')" class="text-red-400 text-xs mt-1 block">
+      <span
+        v-if="getFieldError('assigneeId')"
+        id="assigneeId-error"
+        class="text-red-400 text-xs mt-1 block"
+        role="alert"
+        aria-live="polite"
+      >
         {{ getFieldError("assigneeId") }}
       </span>
     </div>
@@ -75,11 +105,19 @@
             ? 'border-red-500 focus:border-red-500'
             : 'border-gray-300 focus:border-blue-500',
         ]"
+        :aria-invalid="!!getFieldError('dueDate')"
+        :aria-describedby="getFieldError('dueDate') ? 'dueDate-error' : undefined"
         @blur="validateField('dueDate')"
         @keyup="validateField('dueDate')"
         @keydown="validateField('dueDate')"
       />
-      <span v-if="getFieldError('dueDate')" class="text-red-400 text-xs mt-1 block">
+      <span
+        v-if="getFieldError('dueDate')"
+        id="dueDate-error"
+        class="text-red-400 text-xs mt-1 block"
+        role="alert"
+        aria-live="polite"
+      >
         {{ getFieldError("dueDate") }}
       </span>
     </div>
@@ -93,6 +131,7 @@
           ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
           : 'bg-blue-600 text-white hover:bg-blue-700 hover:shadow-lg',
       ]"
+      :aria-disabled="!isFormValid || loading"
     >
       <span>Create Task</span>
     </button>
